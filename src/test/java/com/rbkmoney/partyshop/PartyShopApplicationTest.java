@@ -7,7 +7,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = PartyShopApplication.class)
-public class PartyShopApplicationTest {
+public class PartyShopApplicationTest extends PostgresAbstractTest {
 
     @Test
     public void contextLoads() {
