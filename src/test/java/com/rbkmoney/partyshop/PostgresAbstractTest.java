@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 @RunWith(SpringRunner.class)
 @EnableConfigurationProperties({DataSourceProperties.class})
 @ContextConfiguration(classes = {DataSourceAutoConfiguration.class}, initializers = PostgresAbstractTest.Initializer.class)
-public abstract class PostgresAbstractTest {
+public abstract class PostgresAbstractTest extends AbstractTestUtils {
 
     private static final TestContainers POSTGRES = TestContainersBuilder.builderWithTestContainers(TestContainersParameters::new)
             .addPostgresqlTestContainer()

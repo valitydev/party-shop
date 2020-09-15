@@ -1,6 +1,8 @@
 package com.rbkmoney.partyshop;
 
 import com.rbkmoney.kafka.common.serialization.ThriftSerializer;
+import com.rbkmoney.machinegun.eventsink.MachineEvent;
+import com.rbkmoney.machinegun.eventsink.SinkEvent;
 import com.rbkmoney.partyshop.serializer.SinkEventDeserializer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
@@ -22,6 +24,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.KafkaContainer;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Properties;
 
@@ -42,7 +46,7 @@ public abstract class AbstractKafkaIntegrationTest extends PostgresAbstractTest 
         @Override
         public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
             TestPropertyValues
-                    .of("kafka.bootstrap.servers=" + kafka.getBootstrapServers(),
+                    .of("kafka.bootstrap-servers=" + kafka.getBootstrapServers(),
                             "kafka.topics.party-shop.id=" + MG_EVENTS_PARTY)
                     .applyTo(configurableApplicationContext.getEnvironment());
             initTopic(MG_EVENTS_PARTY);
@@ -78,5 +82,19 @@ public abstract class AbstractKafkaIntegrationTest extends PostgresAbstractTest 
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ThriftSerializer.class);
         return new KafkaProducer<>(props);
     }
+
+
+    protected MachineEvent createMessage() {
+        MachineEvent message = new MachineEvent();
+        com.rbkmoney.machinegun.msgpack.Value data = new com.rbkmoney.machinegun.msgpack.Value();
+        data.setBin(new byte[0]);
+        message.setCreatedAt(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
+        message.setEventId(1L);
+        message.setSourceNs("sad");
+        message.setSourceId("sda");
+        message.setData(data);
+        return message;
+    }
+
 
 }
