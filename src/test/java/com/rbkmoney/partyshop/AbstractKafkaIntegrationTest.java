@@ -1,8 +1,12 @@
 package com.rbkmoney.partyshop;
 
+import com.rbkmoney.damsel.payment_processing.EventPayload;
+import com.rbkmoney.damsel.payment_processing.PartyChange;
+import com.rbkmoney.geck.common.util.TypeUtil;
 import com.rbkmoney.kafka.common.serialization.ThriftSerializer;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import com.rbkmoney.machinegun.eventsink.SinkEvent;
+import com.rbkmoney.machinegun.msgpack.Value;
 import com.rbkmoney.partyshop.serializer.SinkEventDeserializer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
@@ -24,8 +28,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.KafkaContainer;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Properties;
 
@@ -83,18 +89,27 @@ public abstract class AbstractKafkaIntegrationTest extends PostgresAbstractTest 
         return new KafkaProducer<>(props);
     }
 
-
-    protected MachineEvent createMessage() {
+    protected static MachineEvent createMachineEvent(PartyChange partyChange, String sourceId, Long sequenceId) {
         MachineEvent message = new MachineEvent();
-        com.rbkmoney.machinegun.msgpack.Value data = new com.rbkmoney.machinegun.msgpack.Value();
-        data.setBin(new byte[0]);
-        message.setCreatedAt(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
-        message.setEventId(1L);
-        message.setSourceNs("sad");
-        message.setSourceId("sda");
+        EventPayload payload = new EventPayload();
+        ArrayList<PartyChange> partyChanges = new ArrayList<>();
+        partyChanges.add(partyChange);
+        payload.setPartyChanges(partyChanges);
+        message.setCreatedAt(TypeUtil.temporalToString(Instant.now()));
+        message.setEventId(sequenceId);
+        message.setSourceNs("sda");
+        message.setSourceId(sourceId);
+
+        ThriftSerializer<EventPayload> eventPayloadThriftSerializer = new ThriftSerializer<>();
+        Value data = new Value();
+        data.setBin(eventPayloadThriftSerializer.serialize("", payload));
         message.setData(data);
         return message;
     }
 
-
+    protected static SinkEvent createSinkEvent(MachineEvent machineEvent) {
+        SinkEvent sinkEvent = new SinkEvent();
+        sinkEvent.setEvent(machineEvent);
+        return sinkEvent;
+    }
 }

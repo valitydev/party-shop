@@ -1,6 +1,10 @@
 package com.rbkmoney.partyshop;
 
+import com.rbkmoney.damsel.domain.PartyContactInfo;
+import com.rbkmoney.damsel.payment_processing.PartyChange;
+import com.rbkmoney.damsel.payment_processing.PartyCreated;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
+import com.rbkmoney.machinegun.eventsink.SinkEvent;
 import com.rbkmoney.partyshop.service.PartyManagementService;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -12,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.time.Instant;
 import java.util.concurrent.ExecutionException;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -28,13 +33,21 @@ public class PartyShopApplicationTest extends AbstractKafkaIntegrationTest {
 
     @Test
     public void contextLoads() throws ExecutionException, InterruptedException {
-        MachineEvent message = createMessage();
-        Producer<String, MachineEvent> producer = createProducer();
-        ProducerRecord<String, MachineEvent> producerRecord = new ProducerRecord<>(topic, message.getSourceId(), message);
+        PartyChange partyChange = new PartyChange();
+        partyChange.setPartyCreated(new PartyCreated()
+                .setId("123")
+                .setCreatedAt(Instant.now().toString())
+                .setContactInfo(new PartyContactInfo()
+                        .setEmail("tetst")));
+        MachineEvent message = createMachineEvent(partyChange, "12", 1L);
+        SinkEvent sinkEvent = createSinkEvent(message);
+        Producer<String, SinkEvent> producer = createProducer();
+        ProducerRecord<String, SinkEvent> producerRecord = new ProducerRecord<>(topic, message.getSourceId(), sinkEvent);
         producer.send(producerRecord).get();
 
         Thread.sleep(5000L);
 
         Mockito.verify(partyManagementService, Mockito.times(1)).handleEvents(any());
     }
+
 }
