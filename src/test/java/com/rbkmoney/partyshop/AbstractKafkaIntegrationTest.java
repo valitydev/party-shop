@@ -2,6 +2,7 @@ package com.rbkmoney.partyshop;
 
 import com.rbkmoney.damsel.payment_processing.EventPayload;
 import com.rbkmoney.damsel.payment_processing.PartyChange;
+import com.rbkmoney.damsel.payment_processing.PartyEventData;
 import com.rbkmoney.geck.common.util.TypeUtil;
 import com.rbkmoney.kafka.common.serialization.ThriftSerializer;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
@@ -91,16 +92,16 @@ public abstract class AbstractKafkaIntegrationTest extends PostgresAbstractTest 
 
     protected static MachineEvent createMachineEvent(PartyChange partyChange, String sourceId, Long sequenceId) {
         MachineEvent message = new MachineEvent();
-        EventPayload payload = new EventPayload();
+        PartyEventData payload = new PartyEventData();
         ArrayList<PartyChange> partyChanges = new ArrayList<>();
         partyChanges.add(partyChange);
-        payload.setPartyChanges(partyChanges);
+        payload.setChanges(partyChanges);
         message.setCreatedAt(TypeUtil.temporalToString(Instant.now()));
         message.setEventId(sequenceId);
         message.setSourceNs("sda");
         message.setSourceId(sourceId);
 
-        ThriftSerializer<EventPayload> eventPayloadThriftSerializer = new ThriftSerializer<>();
+        ThriftSerializer<PartyEventData> eventPayloadThriftSerializer = new ThriftSerializer<>();
         Value data = new Value();
         data.setBin(eventPayloadThriftSerializer.serialize("", payload));
         message.setData(data);
