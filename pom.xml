@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.rbkmoney</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.3.2</version>
+        <version>2.3.2.RELEASE</version>
     </parent>
 
     <artifactId>party-shop</artifactId>
@@ -25,7 +25,6 @@
         <dockerfile.base.service.tag>bc95d0d6dc13c693acd2b274531a7d604b877bf3</dockerfile.base.service.tag>
         <dockerfile.registry>${env.REGISTRY}</dockerfile.registry>
         <shared.resources.version>0.3.6</shared.resources.version>
-        <sonar.jacoco.reportPaths>${project.basedir}/target/jacoco.exec</sonar.jacoco.reportPaths>
         <party-shop-proto.version>1.6-46a70b8</party-shop-proto.version>
         <sink-common-lib.version>0.0.4</sink-common-lib.version>
         <damsel.version>1.446-38bdfd5</damsel.version>
