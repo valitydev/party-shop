@@ -1,5 +1,5 @@
 #!groovy
-build('analytics', 'java-maven') {
+build('party-shop', 'java-maven') {
     checkoutRepo()
     loadBuildUtils()
 
