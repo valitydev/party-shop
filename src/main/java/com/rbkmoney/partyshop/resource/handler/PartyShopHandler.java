@@ -1,10 +1,10 @@
 package com.rbkmoney.partyshop.resource.handler;
 
-import com.rbkmoney.damsel.domain.CategoryType;
 import com.rbkmoney.damsel.party_shop.Environment;
 import com.rbkmoney.damsel.party_shop.PartyShopServiceSrv;
 import com.rbkmoney.partyshop.entity.PartyShopReference;
 import com.rbkmoney.partyshop.repository.PartyShopReferenceRepository;
+import com.rbkmoney.partyshop.util.CategoryTypeResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
@@ -25,7 +25,7 @@ public class PartyShopHandler implements PartyShopServiceSrv.Iface {
     public List<String> getShopsIds(String partyId, Environment environment) throws TException {
         log.debug("-> get shops ids by partyId: {} env: {}", partyId, environment);
         List<PartyShopReference> references = partyShopReferenceRepository.findByPartyIdAndCategoryType(partyId,
-                resolveCategoryType(environment));
+                CategoryTypeResolver.resolve(environment));
         log.debug("-> get shops ids by partyId: {} env: {} result: {}", partyId, environment, references);
         if (!CollectionUtils.isEmpty(references)) {
             return references.stream()
@@ -33,17 +33,6 @@ public class PartyShopHandler implements PartyShopServiceSrv.Iface {
                     .collect(Collectors.toList());
         }
         return List.of();
-    }
-
-    private String resolveCategoryType(Environment environment) {
-        switch (environment) {
-            case prod:
-                return CategoryType.live.name();
-            case test:
-                return CategoryType.test.name();
-            default:
-                throw new RuntimeException("resolveCategoryType environment is unknown!");
-        }
     }
 
 }

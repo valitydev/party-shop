@@ -11,4 +11,5 @@ public class SinkEventDeserializer extends AbstractThriftDeserializer<SinkEvent>
     public SinkEvent deserialize(String topic, byte[] data) {
         return deserialize(data, new SinkEvent());
     }
+
 }

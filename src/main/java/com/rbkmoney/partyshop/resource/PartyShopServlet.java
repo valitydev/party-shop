@@ -14,13 +14,13 @@ public class PartyShopServlet extends GenericServlet {
 
     private Servlet thriftServlet;
 
-    private final PartyShopServiceSrv.Iface analyticsHandler;
+    private final PartyShopServiceSrv.Iface partyShopHandler;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         thriftServlet = new THServiceBuilder()
-                .build(PartyShopServiceSrv.Iface.class, analyticsHandler);
+                .build(PartyShopServiceSrv.Iface.class, partyShopHandler);
     }
 
     @Override
