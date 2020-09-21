@@ -1,72 +1,72 @@
 package com.rbkmoney.partyshop;
 
-import com.rbkmoney.damsel.domain.*;
-import com.rbkmoney.damsel.payment_processing.*;
+import com.rbkmoney.damsel.domain.Category;
+import com.rbkmoney.damsel.domain.CategoryType;
+import com.rbkmoney.damsel.party_shop.Environment;
+import com.rbkmoney.damsel.payment_processing.PartyChange;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import com.rbkmoney.machinegun.eventsink.SinkEvent;
 import com.rbkmoney.partyshop.entity.PartyShopReference;
 import com.rbkmoney.partyshop.repository.PartyShopReferenceRepository;
+import com.rbkmoney.partyshop.resource.handler.PartyShopHandler;
+import com.rbkmoney.partyshop.service.DomainRepositoryAdapterImpl;
+import com.rbkmoney.partyshop.utils.BeanUtils;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.thrift.TException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = PartyShopApplication.class)
 public class PartyShopApplicationTest extends AbstractKafkaIntegrationTest {
 
-    public static final String SHOP_ID = "shop_id";
+    public static final String SOURCE_ID = "12";
+
     @Value("${kafka.topics.party-shop.id}")
     public String topic;
 
     @Autowired
     PartyShopReferenceRepository partyShopReferenceRepository;
 
+    @Autowired
+    PartyShopHandler partyShopHandler;
+
+    @MockBean
+    DomainRepositoryAdapterImpl domainRepositoryAdapter;
+
     @Test
-    public void contextLoads() throws ExecutionException, InterruptedException {
-        PartyChange partyChange = PartyChange.claim_created(new Claim()
-                .setCreatedAt(Instant.now().toString())
-                .setChangeset(List.of(new PartyModification()))
-                .setStatus(ClaimStatus.accepted(new ClaimAccepted().setEffects(
-                        List.of(ClaimEffect.shop_effect(new ShopEffectUnit()
-                                .setShopId("123")
-                                .setEffect(ShopEffect.created(
-                                        new Shop()
-                                                .setBlocking(Blocking.unblocked(new Unblocked()
-                                                        .setReason("123")
-                                                        .setSince("123"))
-                                                )
-                                                .setSuspension(Suspension.active(new Active().setSince("1")))
-                                                .setDetails(new ShopDetails()
-                                                        .setName("name"))
-                                                .setLocation(new ShopLocation())
-                                                .setCategory(new CategoryRef().setId(1))
-                                                .setContractId("123")
-                                                .setCreatedAt(Instant.now().toString())
-                                                .setId(SHOP_ID))))))
-                        )
-                )
+    public void contextLoads() throws ExecutionException, InterruptedException, TException {
+        Mockito.when(domainRepositoryAdapter.getCategory(any(), anyLong())).thenReturn(new Category()
+                .setName("test")
+                .setType(CategoryType.live)
         );
-        partyChange.setPartyCreated(new PartyCreated()
-                .setId("123")
-                .setCreatedAt(Instant.now().toString())
-                .setContactInfo(new PartyContactInfo()
-                        .setEmail("tetst")));
-        MachineEvent message = createMachineEvent(partyChange, "12", 1L);
-        SinkEvent sinkEvent = createSinkEvent(message);
+
+        PartyChange partyChange = BeanUtils.createPartyChange();
+        MachineEvent message = createMachineEvent(partyChange, SOURCE_ID, 1L);
         Producer<String, SinkEvent> producer = createProducer();
-        ProducerRecord<String, SinkEvent> producerRecord = new ProducerRecord<>(topic, message.getSourceId(), sinkEvent);
+        ProducerRecord<String, SinkEvent> producerRecord = new ProducerRecord<>(topic, message.getSourceId(), createSinkEvent(message));
         producer.send(producerRecord).get();
 
-        PartyShopReference one = partyShopReferenceRepository.getOne(SHOP_ID);
+        Thread.sleep(2000L);
+
+        List<String> shopsIds = partyShopHandler.getShopsIds(SOURCE_ID, Environment.prod);
+
+        assertEquals(1, shopsIds.size());
+        assertEquals(BeanUtils.SHOP_ID, shopsIds.get(0));
     }
 
 }

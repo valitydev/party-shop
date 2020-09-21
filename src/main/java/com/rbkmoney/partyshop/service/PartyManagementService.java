@@ -1,11 +1,10 @@
 package com.rbkmoney.partyshop.service;
 
+import com.rbkmoney.damsel.domain.Category;
 import com.rbkmoney.damsel.domain.Shop;
-import com.rbkmoney.damsel.payment_processing.ClaimEffect;
-import com.rbkmoney.damsel.payment_processing.ClaimStatus;
-import com.rbkmoney.damsel.payment_processing.PartyChange;
-import com.rbkmoney.damsel.payment_processing.PartyEventData;
+import com.rbkmoney.damsel.payment_processing.*;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
+import com.rbkmoney.partyshop.domain.ClaimStatusWrapper;
 import com.rbkmoney.partyshop.entity.PartyShopReference;
 import com.rbkmoney.partyshop.repository.PartyShopReferenceRepository;
 import com.rbkmoney.sink.common.parser.impl.MachineEventParser;
@@ -24,6 +23,7 @@ public class PartyManagementService {
 
     private final MachineEventParser<PartyEventData> parser;
     private final PartyShopReferenceRepository partyShopReferenceRepository;
+    private final DomainRepositoryAdapterImpl domainRepositoryAdapter;
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void handleEvents(List<MachineEvent> machineEvents) {
@@ -32,11 +32,18 @@ public class PartyManagementService {
             if (partyEventData.isSetChanges()) {
                 partyEventData.getChanges().stream()
                         .filter(this::isShopCreatedOrCategoryChange)
-                        .flatMap(partyChange -> getClaimStatus(partyChange).getAccepted().getEffects().stream())
-                        .filter(ClaimEffect::isSetShopEffect)
-                        .forEach(claimEffect -> checkAndSaveShopReferencies(machineEvent, claimEffect));
+                        .forEach(partyChange -> handlePartyChange(machineEvent, partyChange))
+                ;
             }
         }
+    }
+
+    private void handlePartyChange(MachineEvent machineEvent, PartyChange partyChange) {
+        ClaimStatusWrapper claimStatusWrapper = getClaimStatus(partyChange);
+        claimStatusWrapper.getClaimStatus().getAccepted().getEffects()
+                .stream()
+                .filter(ClaimEffect::isSetShopEffect)
+                .forEach(claimEffect -> checkAndSaveShopReferences(machineEvent, claimEffect, claimStatusWrapper.getRevision()));
     }
 
     private boolean isShopCreatedOrCategoryChange(PartyChange partyChange) {
@@ -44,28 +51,38 @@ public class PartyManagementService {
                 || (partyChange.isSetClaimStatusChanged() && partyChange.getClaimStatusChanged().getStatus().isSetAccepted());
     }
 
-    private void checkAndSaveShopReferencies(MachineEvent machineEvent, ClaimEffect claimEffect) {
-        if (claimEffect.getShopEffect().getEffect().isSetCreated()) {
-            Shop created = claimEffect.getShopEffect().getEffect().getCreated();
-            partyShopReferenceRepository.save(PartyShopReference.builder()
+    private void checkAndSaveShopReferences(MachineEvent machineEvent, ClaimEffect claimEffect, long revision) {
+        PartyShopReference partyShopReference;
+        ShopEffect shopEffect = claimEffect.getShopEffect().getEffect();
+        if (shopEffect.isSetCreated()) {
+            Shop created = shopEffect.getCreated();
+            Category category = domainRepositoryAdapter.getCategory(created.getCategory(), revision);
+            partyShopReference = partyShopReferenceRepository.save(PartyShopReference.builder()
                     .shopId(claimEffect.getShopEffect().getShopId())
                     .partyId(machineEvent.getSourceId())
-                    .categoryId(created.getCategory().getId())
+                    .categoryType(category.getType().name())
                     .build());
-        } else if (claimEffect.getShopEffect().getEffect().isSetCategoryChanged()) {
-            PartyShopReference one = partyShopReferenceRepository.getOne(claimEffect.getShopEffect().getShopId());
-            one.setCategoryId(claimEffect.getShopEffect().getEffect().getCategoryChanged().getId());
-            partyShopReferenceRepository.save(one);
+            log.debug("save created partyShopReference: {}", partyShopReference);
+        } else if (shopEffect.isSetCategoryChanged()) {
+            partyShopReference = partyShopReferenceRepository.getOne(claimEffect.getShopEffect().getShopId());
+            Category category = domainRepositoryAdapter.getCategory(shopEffect.getCategoryChanged(), revision);
+            partyShopReference.setCategoryType(category.getType().name());
+            partyShopReferenceRepository.save(partyShopReference);
+            log.debug("save created partyShopReference: {}", partyShopReference);
         }
     }
 
-    protected ClaimStatus getClaimStatus(PartyChange change) {
-        ClaimStatus claimStatus = null;
+    protected ClaimStatusWrapper getClaimStatus(PartyChange change) {
+        ClaimStatusWrapper claimStatusWrapper = new ClaimStatusWrapper();
         if (change.isSetClaimCreated()) {
-            claimStatus = change.getClaimCreated().getStatus();
+            Claim claimCreated = change.getClaimCreated();
+            claimStatusWrapper.setClaimStatus(claimCreated.getStatus());
+            claimStatusWrapper.setRevision(claimCreated.getRevision());
         } else if (change.isSetClaimStatusChanged()) {
-            claimStatus = change.getClaimStatusChanged().getStatus();
+            ClaimStatusChanged claimStatusChanged = change.getClaimStatusChanged();
+            claimStatusWrapper.setClaimStatus(claimStatusChanged.getStatus());
+            claimStatusWrapper.setRevision(claimStatusChanged.getRevision());
         }
-        return claimStatus;
+        return claimStatusWrapper;
     }
 }

@@ -18,6 +18,7 @@ import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.apache.thrift.TException;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.util.TestPropertyValues;
@@ -90,7 +91,7 @@ public abstract class AbstractKafkaIntegrationTest extends PostgresAbstractTest 
         return new KafkaProducer<>(props);
     }
 
-    protected static MachineEvent createMachineEvent(PartyChange partyChange, String sourceId, Long sequenceId) {
+    protected static MachineEvent createMachineEvent(PartyChange partyChange, String sourceId, Long sequenceId) throws TException {
         MachineEvent message = new MachineEvent();
         PartyEventData payload = new PartyEventData();
         ArrayList<PartyChange> partyChanges = new ArrayList<>();
@@ -103,6 +104,7 @@ public abstract class AbstractKafkaIntegrationTest extends PostgresAbstractTest 
 
         ThriftSerializer<PartyEventData> eventPayloadThriftSerializer = new ThriftSerializer<>();
         Value data = new Value();
+        payload.validate();
         data.setBin(eventPayloadThriftSerializer.serialize("", payload));
         message.setData(data);
         return message;

@@ -21,6 +21,6 @@ public class PartyShopReference implements Serializable {
     @Id
     private String shopId;
     private String partyId;
-    private int categoryId;
+    private String categoryType;
 
 }

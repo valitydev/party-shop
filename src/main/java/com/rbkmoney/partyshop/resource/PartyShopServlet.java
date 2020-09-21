@@ -1,6 +1,6 @@
-package com.rbkmoney.analytics.resource;
+package com.rbkmoney.partyshop.resource;
 
-import com.rbkmoney.damsel.analytics.AnalyticsServiceSrv;
+import com.rbkmoney.damsel.party_shop.PartyShopServiceSrv;
 import com.rbkmoney.woody.thrift.impl.http.THServiceBuilder;
 import lombok.RequiredArgsConstructor;
 
@@ -8,19 +8,19 @@ import javax.servlet.*;
 import javax.servlet.annotation.WebServlet;
 import java.io.IOException;
 
-@WebServlet("/analytics/v1")
+@WebServlet("/party-shop/v1")
 @RequiredArgsConstructor
-public class AnalyticsServlet extends GenericServlet {
+public class PartyShopServlet extends GenericServlet {
 
     private Servlet thriftServlet;
 
-    private final AnalyticsServiceSrv.Iface analyticsHandler;
+    private final PartyShopServiceSrv.Iface analyticsHandler;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         thriftServlet = new THServiceBuilder()
-                .build(AnalyticsServiceSrv.Iface.class, analyticsHandler);
+                .build(PartyShopServiceSrv.Iface.class, analyticsHandler);
     }
 
     @Override
