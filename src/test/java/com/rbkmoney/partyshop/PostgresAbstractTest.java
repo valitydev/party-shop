@@ -1,6 +1,9 @@
 package com.rbkmoney.partyshop;
 
-import com.rbkmoney.easyway.*;
+import com.rbkmoney.easyway.EnvironmentProperties;
+import com.rbkmoney.easyway.TestContainers;
+import com.rbkmoney.easyway.TestContainersBuilder;
+import com.rbkmoney.easyway.TestContainersParameters;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.junit.ClassRule;
@@ -25,7 +28,7 @@ import java.util.function.Consumer;
 @RunWith(SpringRunner.class)
 @EnableConfigurationProperties({DataSourceProperties.class})
 @ContextConfiguration(classes = {DataSourceAutoConfiguration.class}, initializers = PostgresAbstractTest.Initializer.class)
-public abstract class PostgresAbstractTest extends AbstractTestUtils {
+public abstract class PostgresAbstractTest {
 
     private static final TestContainers POSTGRES = TestContainersBuilder.builderWithTestContainers(TestContainersParameters::new)
             .addPostgresqlTestContainer()
