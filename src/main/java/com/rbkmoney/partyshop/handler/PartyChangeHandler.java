@@ -5,6 +5,7 @@ import com.rbkmoney.damsel.domain.Shop;
 import com.rbkmoney.damsel.payment_processing.*;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import com.rbkmoney.partyshop.domain.ClaimStatusWrapper;
+import com.rbkmoney.partyshop.entity.PartyShopPK;
 import com.rbkmoney.partyshop.entity.PartyShopReference;
 import com.rbkmoney.partyshop.exception.UnknownClaimStatusException;
 import com.rbkmoney.partyshop.exception.UnknownReferenceException;
@@ -25,6 +26,7 @@ public class PartyChangeHandler {
     private final DomainRepositoryAdapterImpl domainRepositoryAdapter;
 
     public void handle(MachineEvent machineEvent, PartyChange partyChange) {
+        log.info("PartyChangeHandler handle machineEvent: {} partyChange: {}", machineEvent, partyChange);
         ClaimStatusWrapper claimStatusWrapper = getClaimStatus(partyChange);
         claimStatusWrapper.getClaimStatus().getAccepted().getEffects()
                 .stream()
@@ -39,22 +41,29 @@ public class PartyChangeHandler {
             Shop created = shopEffect.getCreated();
             Category category = domainRepositoryAdapter.getCategory(created.getCategory(), revision);
             partyShopReference = partyShopReferenceRepository.save(PartyShopReference.builder()
-                    .shopId(claimEffect.getShopEffect().getShopId())
-                    .partyId(machineEvent.getSourceId())
+                    .partyShopPK(PartyShopPK.builder()
+                            .shopId(claimEffect.getShopEffect().getShopId())
+                            .partyId(machineEvent.getSourceId())
+                            .build())
                     .categoryType(category.getType().name())
                     .build());
-            log.debug("save created partyShopReference: {}", partyShopReference);
+            log.info("save created partyShopReference: {}", partyShopReference);
         } else if (shopEffect.isSetCategoryChanged()) {
-            Optional<PartyShopReference> shopReference = partyShopReferenceRepository.findById(claimEffect.getShopEffect().getShopId());
+            Optional<PartyShopReference> shopReference = partyShopReferenceRepository
+                    .findByPartyShopPK(PartyShopPK.builder()
+                            .shopId(claimEffect.getShopEffect().getShopId())
+                            .partyId(machineEvent.getSourceId())
+                            .build());
             if (shopReference.isEmpty()) {
                 log.warn("can't find reference with shopId: {}", claimEffect.getShopEffect().getShopId());
-                throw new UnknownReferenceException("Can't find reference!");
+                throw new UnknownReferenceException(String.format("Can't find reference for shopId: %s!",
+                        claimEffect.getShopEffect().getShopId()));
             }
             Category category = domainRepositoryAdapter.getCategory(shopEffect.getCategoryChanged(), revision);
             partyShopReference = shopReference.get();
             partyShopReference.setCategoryType(category.getType().name());
             partyShopReferenceRepository.save(partyShopReference);
-            log.debug("save created partyShopReference: {}", partyShopReference);
+            log.info("save created partyShopReference: {}", partyShopReference);
         }
     }
 

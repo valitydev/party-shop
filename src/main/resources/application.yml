@@ -32,6 +32,7 @@ spring:
   flyway:
     schemas: ps
     url: @db.url@
+    table: flyway_schema_history
 
 hibernate:
   physical_naming_strategy: com.rbkmoney.partyshop.entity.naming.SnakeCaseNamingStrategy

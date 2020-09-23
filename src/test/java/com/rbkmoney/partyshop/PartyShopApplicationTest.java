@@ -60,6 +60,8 @@ public class PartyShopApplicationTest extends AbstractKafkaIntegrationTest {
         Producer<String, SinkEvent> producer = createProducer();
         ProducerRecord<String, SinkEvent> producerRecord = new ProducerRecord<>(topic, message.getSourceId(), createSinkEvent(message));
         producer.send(producerRecord).get();
+        producer.send(producerRecord).get();
+        producer.send(producerRecord).get();
 
         Thread.sleep(2000L);
 

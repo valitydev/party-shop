@@ -24,12 +24,12 @@ public class PartyShopHandler implements PartyShopServiceSrv.Iface {
     @Override
     public List<String> getShopsIds(String partyId, Environment environment) throws TException {
         log.debug("-> get shops ids by partyId: {} env: {}", partyId, environment);
-        List<PartyShopReference> references = partyShopReferenceRepository.findByPartyIdAndCategoryType(partyId,
+        List<PartyShopReference> references = partyShopReferenceRepository.findByPartyShopPKPartyIdAndCategoryType(partyId,
                 CategoryTypeResolver.resolve(environment));
         log.debug("-> get shops ids by partyId: {} env: {} result: {}", partyId, environment, references);
         if (!CollectionUtils.isEmpty(references)) {
             return references.stream()
-                    .map(PartyShopReference::getShopId)
+                    .map(partyShopReference -> partyShopReference.getPartyShopPK().getShopId())
                     .collect(Collectors.toList());
         }
         return List.of();

@@ -1,13 +1,8 @@
 package com.rbkmoney.partyshop.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
@@ -18,9 +13,8 @@ import java.io.Serializable;
 @Table(name = "party_shop_reference")
 public class PartyShopReference implements Serializable {
 
-    @Id
-    private String shopId;
-    private String partyId;
+    @EmbeddedId
+    private PartyShopPK partyShopPK;
     private String categoryType;
 
 }
