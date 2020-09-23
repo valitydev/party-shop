@@ -62,3 +62,7 @@ kafka:
       session-timeout-ms: 30000
       party-management-concurrency: 7
   topics.party-shop.id: mg-events-party
+
+repository:
+  url: http://dominant:8022/v1/domain/repository_client
+  network-timeout: 5000
