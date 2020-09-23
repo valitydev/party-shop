@@ -26,7 +26,7 @@ public class PartyChangeHandler {
     private final DomainRepositoryAdapterImpl domainRepositoryAdapter;
 
     public void handle(MachineEvent machineEvent, PartyChange partyChange) {
-        log.info("PartyChangeHandler handle machineEvent: {} partyChange: {}", machineEvent, partyChange);
+        log.info("handle machineEvent: {} partyChange: {}", machineEvent, partyChange);
         ClaimStatusWrapper claimStatusWrapper = getClaimStatus(partyChange);
         claimStatusWrapper.getClaimStatus().getAccepted().getEffects()
                 .stream()
