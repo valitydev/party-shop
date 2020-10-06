@@ -2,9 +2,11 @@ package com.rbkmoney.partyshop.handler;
 
 import com.rbkmoney.damsel.domain.Category;
 import com.rbkmoney.damsel.domain.Shop;
-import com.rbkmoney.damsel.payment_processing.*;
+import com.rbkmoney.damsel.payment_processing.ClaimEffect;
+import com.rbkmoney.damsel.payment_processing.ClaimStatus;
+import com.rbkmoney.damsel.payment_processing.PartyChange;
+import com.rbkmoney.damsel.payment_processing.ShopEffect;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
-import com.rbkmoney.partyshop.domain.ClaimStatusWrapper;
 import com.rbkmoney.partyshop.entity.PartyShopPK;
 import com.rbkmoney.partyshop.entity.PartyShopReference;
 import com.rbkmoney.partyshop.exception.UnknownClaimStatusException;
@@ -27,19 +29,19 @@ public class PartyChangeHandler {
 
     public void handle(MachineEvent machineEvent, PartyChange partyChange) {
         log.info("handle machineEvent: {} partyChange: {}", machineEvent, partyChange);
-        ClaimStatusWrapper claimStatusWrapper = getClaimStatus(partyChange);
-        claimStatusWrapper.getClaimStatus().getAccepted().getEffects()
+        ClaimStatus claimStatus = getClaimStatus(partyChange);
+        claimStatus.getAccepted().getEffects()
                 .stream()
                 .filter(ClaimEffect::isSetShopEffect)
-                .forEach(claimEffect -> checkAndSaveShopReferences(machineEvent, claimEffect, claimStatusWrapper.getRevision()));
+                .forEach(claimEffect -> checkAndSaveShopReferences(machineEvent, claimEffect));
     }
 
-    private void checkAndSaveShopReferences(MachineEvent machineEvent, ClaimEffect claimEffect, long revision) {
+    private void checkAndSaveShopReferences(MachineEvent machineEvent, ClaimEffect claimEffect) {
         PartyShopReference partyShopReference;
         ShopEffect shopEffect = claimEffect.getShopEffect().getEffect();
         if (shopEffect.isSetCreated()) {
             Shop created = shopEffect.getCreated();
-            Category category = domainRepositoryAdapter.getCategory(created.getCategory(), revision);
+            Category category = domainRepositoryAdapter.getCategory(created.getCategory());
             partyShopReference = partyShopReferenceRepository.save(PartyShopReference.builder()
                     .partyShopPK(PartyShopPK.builder()
                             .shopId(claimEffect.getShopEffect().getShopId())
@@ -59,7 +61,7 @@ public class PartyChangeHandler {
                 throw new UnknownReferenceException(String.format("Can't find reference for shopId: %s!",
                         claimEffect.getShopEffect().getShopId()));
             }
-            Category category = domainRepositoryAdapter.getCategory(shopEffect.getCategoryChanged(), revision);
+            Category category = domainRepositoryAdapter.getCategory(shopEffect.getCategoryChanged());
             partyShopReference = shopReference.get();
             partyShopReference.setCategoryType(category.getType().name());
             partyShopReferenceRepository.save(partyShopReference);
@@ -67,19 +69,13 @@ public class PartyChangeHandler {
         }
     }
 
-    protected ClaimStatusWrapper getClaimStatus(PartyChange change) {
-        ClaimStatusWrapper claimStatusWrapper = new ClaimStatusWrapper();
+    protected ClaimStatus getClaimStatus(PartyChange change) {
         if (change.isSetClaimCreated()) {
-            Claim claimCreated = change.getClaimCreated();
-            claimStatusWrapper.setClaimStatus(claimCreated.getStatus());
-            claimStatusWrapper.setRevision(claimCreated.getRevision());
+            return change.getClaimCreated().getStatus();
         } else if (change.isSetClaimStatusChanged()) {
-            ClaimStatusChanged claimStatusChanged = change.getClaimStatusChanged();
-            claimStatusWrapper.setClaimStatus(claimStatusChanged.getStatus());
-            claimStatusWrapper.setRevision(claimStatusChanged.getRevision());
+            return change.getClaimStatusChanged().getStatus();
         } else {
             throw new UnknownClaimStatusException(String.format("Unknown claim status for %s!", change.toString()));
         }
-        return claimStatusWrapper;
     }
 }

@@ -46,7 +46,7 @@ public class IntegrationTest extends PostgresAbstractTest {
 
     @Test
     public void test() throws InterruptedException {
-        Mockito.when(domainRepositoryAdapter.getCategory(any(), anyLong())).thenReturn(new Category()
+        Mockito.when(domainRepositoryAdapter.getCategory(any())).thenReturn(new Category()
                 .setName("test")
                 .setType(CategoryType.live)
         );
