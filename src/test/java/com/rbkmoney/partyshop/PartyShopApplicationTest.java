@@ -50,7 +50,7 @@ public class PartyShopApplicationTest extends AbstractKafkaIntegrationTest {
 
     @Test
     public void contextLoads() throws ExecutionException, InterruptedException, TException {
-        Mockito.when(domainRepositoryAdapter.getCategory(any(), anyLong())).thenReturn(new Category()
+        Mockito.when(domainRepositoryAdapter.getCategory(any())).thenReturn(new Category()
                 .setName("test")
                 .setType(CategoryType.live)
         );
