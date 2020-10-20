@@ -2,11 +2,10 @@ package com.rbkmoney.partyshop;
 
 import com.rbkmoney.damsel.domain.Category;
 import com.rbkmoney.damsel.domain.CategoryType;
-import com.rbkmoney.damsel.party_shop.Environment;
+import com.rbkmoney.damsel.party_shop.PaymentInstitutionRealm;
 import com.rbkmoney.damsel.payment_processing.PartyChange;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import com.rbkmoney.machinegun.eventsink.SinkEvent;
-import com.rbkmoney.partyshop.entity.PartyShopReference;
 import com.rbkmoney.partyshop.repository.PartyShopReferenceRepository;
 import com.rbkmoney.partyshop.resource.handler.PartyShopHandler;
 import com.rbkmoney.partyshop.service.DomainRepositoryAdapterImpl;
@@ -28,7 +27,6 @@ import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = PartyShopApplication.class)
@@ -65,7 +63,7 @@ public class PartyShopApplicationTest extends AbstractKafkaIntegrationTest {
 
         Thread.sleep(2000L);
 
-        List<String> shopsIds = partyShopHandler.getShopsIds(SOURCE_ID, Environment.prod);
+        List<String> shopsIds = partyShopHandler.getShopsIds(SOURCE_ID, PaymentInstitutionRealm.live);
 
         assertEquals(1, shopsIds.size());
         assertEquals(BeanUtils.SHOP_ID, shopsIds.get(0));

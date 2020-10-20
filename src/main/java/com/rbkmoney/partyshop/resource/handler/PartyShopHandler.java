@@ -1,7 +1,7 @@
 package com.rbkmoney.partyshop.resource.handler;
 
-import com.rbkmoney.damsel.party_shop.Environment;
 import com.rbkmoney.damsel.party_shop.PartyShopServiceSrv;
+import com.rbkmoney.damsel.party_shop.PaymentInstitutionRealm;
 import com.rbkmoney.partyshop.entity.PartyShopReference;
 import com.rbkmoney.partyshop.repository.PartyShopReferenceRepository;
 import com.rbkmoney.partyshop.util.CategoryTypeResolver;
@@ -22,11 +22,11 @@ public class PartyShopHandler implements PartyShopServiceSrv.Iface {
     private final PartyShopReferenceRepository partyShopReferenceRepository;
 
     @Override
-    public List<String> getShopsIds(String partyId, Environment environment) throws TException {
-        log.debug("-> get shops ids by partyId: {} env: {}", partyId, environment);
+    public List<String> getShopsIds(String partyId, PaymentInstitutionRealm paymentInstitutionRealm) throws TException {
+        log.debug("-> get shops ids by partyId: {} env: {}", partyId, paymentInstitutionRealm);
         List<PartyShopReference> references = partyShopReferenceRepository.findByPartyShopPKPartyIdAndCategoryType(partyId,
-                CategoryTypeResolver.resolve(environment));
-        log.debug("-> get shops ids by partyId: {} env: {} result: {}", partyId, environment, references);
+                CategoryTypeResolver.resolve(paymentInstitutionRealm));
+        log.debug("-> get shops ids by partyId: {} env: {} result: {}", partyId, paymentInstitutionRealm, references);
         if (!CollectionUtils.isEmpty(references)) {
             return references.stream()
                     .map(partyShopReference -> partyShopReference.getPartyShopPK().getShopId())
@@ -34,5 +34,4 @@ public class PartyShopHandler implements PartyShopServiceSrv.Iface {
         }
         return List.of();
     }
-
 }
