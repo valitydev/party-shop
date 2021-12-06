@@ -6,14 +6,12 @@ import com.rbkmoney.partyshop.entity.PartyShopReference;
 import com.rbkmoney.partyshop.repository.PartyShopReferenceRepository;
 import com.rbkmoney.partyshop.service.DomainRepositoryAdapterImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
 
@@ -22,8 +20,7 @@ import static org.mockito.ArgumentMatchers.*;
 //Test for real big data set
 //Need get truststore pcsng-kafka by devops
 @Slf4j
-@Ignore
-@RunWith(SpringRunner.class)
+@Disabled
 @SpringBootTest(classes = PartyShopApplication.class,
         properties = {"kafka.bootstrap-servers=" + "dev-kafka-mirror.bst1.rbkmoney.net:9092",
                 "kafka.ssl.trustStoreLocation=" + "src/test/resources/broker/pcsng-kafka.p12",

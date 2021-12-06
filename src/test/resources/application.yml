@@ -1,10 +1,10 @@
 server:
-  port: '@server.port@'
+  port: 8022
 management:
   security:
     flag: false
   server:
-    port: '@management.port@'
+    port: 8023
   metrics:
     export:
       statsd:
@@ -38,13 +38,9 @@ spring:
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: org.postgresql.Driver
-    url: @db.url@
-    username: @db.user@
-    password: @db.password@
     hikari.maximum-pool-size: 10
   flyway:
     schemas: ps
-    url: @db.url@
     table: flyway_schema_history
 
 hibernate:
