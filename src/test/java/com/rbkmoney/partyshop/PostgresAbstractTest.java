@@ -27,10 +27,14 @@ import java.util.function.Consumer;
 @DirtiesContext
 @RunWith(SpringRunner.class)
 @EnableConfigurationProperties({DataSourceProperties.class})
-@ContextConfiguration(classes = {DataSourceAutoConfiguration.class}, initializers = PostgresAbstractTest.Initializer.class)
+@ContextConfiguration(
+        classes = {DataSourceAutoConfiguration.class},
+        initializers = PostgresAbstractTest.Initializer.class
+)
 public abstract class PostgresAbstractTest {
 
-    private static final TestContainers POSTGRES = TestContainersBuilder.builderWithTestContainers(TestContainersParameters::new)
+    private static final TestContainers POSTGRES = TestContainersBuilder
+            .builderWithTestContainers(TestContainersParameters::new)
             .addPostgresqlTestContainer()
             .build();
 
@@ -65,13 +69,13 @@ public abstract class PostgresAbstractTest {
 
     private static Consumer<EnvironmentProperties> getEnvironmentPropertiesConsumer() {
         return environmentProperties -> {
-            PostgreSQLContainer postgreSQLContainer = POSTGRES.getPostgresqlTestContainer().get();
-            environmentProperties.put("spring.datasource.url", postgreSQLContainer.getJdbcUrl());
-            environmentProperties.put("spring.datasource.username", postgreSQLContainer.getUsername());
-            environmentProperties.put("spring.datasource.password", postgreSQLContainer.getPassword());
-            environmentProperties.put("spring.flyway.url", postgreSQLContainer.getJdbcUrl());
-            environmentProperties.put("spring.flyway.user", postgreSQLContainer.getUsername());
-            environmentProperties.put("spring.flyway.password", postgreSQLContainer.getPassword());
+            PostgreSQLContainer postgreSqlContainer = POSTGRES.getPostgresqlTestContainer().get();
+            environmentProperties.put("spring.datasource.url", postgreSqlContainer.getJdbcUrl());
+            environmentProperties.put("spring.datasource.username", postgreSqlContainer.getUsername());
+            environmentProperties.put("spring.datasource.password", postgreSqlContainer.getPassword());
+            environmentProperties.put("spring.flyway.url", postgreSqlContainer.getJdbcUrl());
+            environmentProperties.put("spring.flyway.user", postgreSqlContainer.getUsername());
+            environmentProperties.put("spring.flyway.password", postgreSqlContainer.getPassword());
         };
     }
 }

@@ -91,7 +91,8 @@ public abstract class AbstractKafkaIntegrationTest extends PostgresAbstractTest 
         return new KafkaProducer<>(props);
     }
 
-    protected static MachineEvent createMachineEvent(PartyChange partyChange, String sourceId, Long sequenceId) throws TException {
+    protected static MachineEvent createMachineEvent(PartyChange partyChange, String sourceId, Long sequenceId)
+            throws TException {
         MachineEvent message = new MachineEvent();
         PartyEventData payload = new PartyEventData();
         ArrayList<PartyChange> partyChanges = new ArrayList<>();

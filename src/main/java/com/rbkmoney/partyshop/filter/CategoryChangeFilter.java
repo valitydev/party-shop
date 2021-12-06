@@ -11,6 +11,7 @@ public class CategoryChangeFilter implements Predicate<PartyChange> {
     @Override
     public boolean test(PartyChange partyChange) {
         return (partyChange.isSetClaimCreated() && partyChange.getClaimCreated().getStatus().isSetAccepted())
-                || (partyChange.isSetClaimStatusChanged() && partyChange.getClaimStatusChanged().getStatus().isSetAccepted());
+                || (partyChange.isSetClaimStatusChanged()
+                        && partyChange.getClaimStatusChanged().getStatus().isSetAccepted());
     }
 }

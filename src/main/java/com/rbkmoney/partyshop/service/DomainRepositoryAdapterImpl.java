@@ -21,8 +21,13 @@ public class DomainRepositoryAdapterImpl {
     @SneakyThrows
     @Cacheable("categories")
     public Category getCategory(CategoryRef categoryRef) {
-        VersionedObject versionedObject = repositoryClient.checkoutObject(Reference.head(new Head()), com.rbkmoney.damsel.domain.Reference.category(categoryRef));
-        if (!versionedObject.isSetObject() || !versionedObject.getObject().isSetCategory() || !versionedObject.getObject().getCategory().isSetData()) {
+        VersionedObject versionedObject = repositoryClient.checkoutObject(
+                Reference.head(new Head()),
+                com.rbkmoney.damsel.domain.Reference.category(categoryRef)
+        );
+        if (!versionedObject.isSetObject()
+                || !versionedObject.getObject().isSetCategory()
+                || !versionedObject.getObject().getCategory().isSetData()) {
             throw new UnknownCategoryRevisionException(String.format("Unknown category: %s", categoryRef.id));
         }
         return versionedObject.getObject().getCategory().getData();

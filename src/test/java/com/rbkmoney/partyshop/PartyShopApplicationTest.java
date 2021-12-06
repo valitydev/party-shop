@@ -56,7 +56,8 @@ public class PartyShopApplicationTest extends AbstractKafkaIntegrationTest {
         PartyChange partyChange = BeanUtils.createPartyChange();
         MachineEvent message = createMachineEvent(partyChange, SOURCE_ID, 1L);
         Producer<String, SinkEvent> producer = createProducer();
-        ProducerRecord<String, SinkEvent> producerRecord = new ProducerRecord<>(topic, message.getSourceId(), createSinkEvent(message));
+        ProducerRecord<String, SinkEvent> producerRecord =
+                new ProducerRecord<>(topic, message.getSourceId(), createSinkEvent(message));
         producer.send(producerRecord).get();
         producer.send(producerRecord).get();
         producer.send(producerRecord).get();
