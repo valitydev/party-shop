@@ -14,7 +14,8 @@ public class AppConfig {
 
     @Bean
     public RepositoryClientSrv.Iface repositoryClient(@Value("${repository.url}") Resource resource,
-                                                      @Value("${repository.network-timeout}") int networkTimeout) throws IOException {
+                                                      @Value("${repository.network-timeout}") int networkTimeout)
+            throws IOException {
         return new THSpawnClientBuilder()
                 .withAddress(resource.getURI())
                 .withNetworkTimeout(networkTimeout)

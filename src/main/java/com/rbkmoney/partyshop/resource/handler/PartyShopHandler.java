@@ -24,8 +24,10 @@ public class PartyShopHandler implements PartyShopServiceSrv.Iface {
     @Override
     public List<String> getShopsIds(String partyId, PaymentInstitutionRealm paymentInstitutionRealm) throws TException {
         log.debug("-> get shops ids by partyId: {} env: {}", partyId, paymentInstitutionRealm);
-        List<PartyShopReference> references = partyShopReferenceRepository.findByPartyShopPKPartyIdAndCategoryType(partyId,
-                CategoryTypeResolver.resolve(paymentInstitutionRealm));
+        List<PartyShopReference> references = partyShopReferenceRepository.findByPartyShopPKPartyIdAndCategoryType(
+                partyId,
+                CategoryTypeResolver.resolve(paymentInstitutionRealm)
+        );
         log.debug("-> get shops ids by partyId: {} env: {} result: {}", partyId, paymentInstitutionRealm, references);
         if (!CollectionUtils.isEmpty(references)) {
             return references.stream()

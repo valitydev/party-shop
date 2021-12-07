@@ -13,23 +13,22 @@ import com.rbkmoney.partyshop.utils.BeanUtils;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.thrift.TException;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.core.env.Environment;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import static org.junit.Assert.assertEquals;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(classes = PartyShopApplication.class)
+@SpringBootTest(classes = PartyShopApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class PartyShopApplicationTest extends AbstractKafkaIntegrationTest {
 
     public static final String SOURCE_ID = "12";
@@ -56,7 +55,8 @@ public class PartyShopApplicationTest extends AbstractKafkaIntegrationTest {
         PartyChange partyChange = BeanUtils.createPartyChange();
         MachineEvent message = createMachineEvent(partyChange, SOURCE_ID, 1L);
         Producer<String, SinkEvent> producer = createProducer();
-        ProducerRecord<String, SinkEvent> producerRecord = new ProducerRecord<>(topic, message.getSourceId(), createSinkEvent(message));
+        ProducerRecord<String, SinkEvent> producerRecord =
+                new ProducerRecord<>(topic, message.getSourceId(), createSinkEvent(message));
         producer.send(producerRecord).get();
         producer.send(producerRecord).get();
         producer.send(producerRecord).get();

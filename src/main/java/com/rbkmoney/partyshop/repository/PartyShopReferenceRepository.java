@@ -9,6 +9,7 @@ import java.util.Optional;
 
 public interface PartyShopReferenceRepository extends JpaRepository<PartyShopReference, PartyShopPK> {
 
+    @SuppressWarnings("checkstyle:AbbreviationAsWordInName")
     List<PartyShopReference> findByPartyShopPKPartyIdAndCategoryType(String partyId, String type);
 
     Optional<PartyShopReference> findByPartyShopPK(PartyShopPK partyShopPk);
