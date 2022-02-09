@@ -44,7 +44,7 @@ spring:
     table: flyway_schema_history
 
 hibernate:
-  physical_naming_strategy: com.rbkmoney.partyshop.entity.naming.SnakeCaseNamingStrategy
+  physical_naming_strategy: dev.vality.partyshop.entity.naming.SnakeCaseNamingStrategy
 
 info:
   version: '@project.version@'

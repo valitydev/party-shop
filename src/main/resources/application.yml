@@ -7,11 +7,8 @@ management:
     port: '@management.port@'
   metrics:
     export:
-      statsd:
-        flavor: etsy
-        enabled: false
       prometheus:
-        enabled: false
+        enabled: true
   endpoint:
     health:
       show-details: always
@@ -48,7 +45,7 @@ spring:
     table: flyway_schema_history
 
 hibernate:
-  physical_naming_strategy: com.rbkmoney.partyshop.entity.naming.SnakeCaseNamingStrategy
+  physical_naming_strategy: dev.vality.partyshop.entity.naming.SnakeCaseNamingStrategy
 
 info:
   version: '@project.version@'

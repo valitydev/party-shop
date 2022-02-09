@@ -4,9 +4,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.rbkmoney</groupId>
+        <groupId>dev.vality</groupId>
         <artifactId>service-parent-pom</artifactId>
-        <version>2.0.14</version>
+        <version>1.0.9</version>
     </parent>
 
     <artifactId>party-shop</artifactId>
@@ -24,11 +24,6 @@
         <server.port>8022</server.port>
         <management.port>8023</management.port>
         <exposed.ports>${server.port} ${management.port}</exposed.ports>
-        <dockerfile.base.service.tag>57e26d8ee999d7b0b50248c22afc63e6f926d276</dockerfile.base.service.tag>
-        <dockerfile.registry>${env.REGISTRY}</dockerfile.registry>
-        <shared.resources.version>0.3.6</shared.resources.version>
-        <party-shop-proto.version>1.10-4c8ecba</party-shop-proto.version>
-        <sink-common-lib.version>0.0.4</sink-common-lib.version>
         <damsel.version>1.446-38bdfd5</damsel.version>
         <flyway.version>5.2.3</flyway.version>
         <db.host.name>localhost</db.host.name>
@@ -46,53 +41,47 @@
     <dependencies>
         <!--rbkmoney-->
         <dependency>
-            <groupId>com.rbkmoney</groupId>
-            <artifactId>spring-boot-starter-metrics-statsd</artifactId>
-            <version>1.1.3</version>
-        </dependency>
-        <dependency>
-            <groupId>com.rbkmoney</groupId>
-            <artifactId>custom-actuator-endpoints</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.rbkmoney.woody</groupId>
+            <groupId>dev.vality.woody</groupId>
             <artifactId>woody-thrift</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.rbkmoney</groupId>
+            <groupId>dev.vality</groupId>
             <artifactId>shared-resources</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.rbkmoney</groupId>
+            <groupId>dev.vality</groupId>
             <artifactId>party-shop-proto</artifactId>
-            <version>${party-shop-proto.version}</version>
+            <version>1.13-954cab0</version>
         </dependency>
         <dependency>
-            <groupId>com.rbkmoney</groupId>
+            <groupId>dev.vality</groupId>
             <artifactId>machinegun-proto</artifactId>
-            <version>1.12-ebae56f</version>
+            <version>1.21-e4784ab</version>
         </dependency>
         <dependency>
-            <groupId>com.rbkmoney</groupId>
+            <groupId>dev.vality</groupId>
             <artifactId>sink-common-lib</artifactId>
-            <version>${sink-common-lib.version}</version>
+            <version>0.0.1</version>
         </dependency>
         <dependency>
-            <groupId>com.rbkmoney</groupId>
+            <groupId>dev.vality</groupId>
             <artifactId>kafka-common-lib</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.rbkmoney</groupId>
+            <groupId>dev.vality</groupId>
             <artifactId>damsel</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.rbkmoney.geck</groupId>
+            <groupId>dev.vality.geck</groupId>
             <artifactId>serializer</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.rbkmoney</groupId>
-            <artifactId>eventstock-client-damsel</artifactId>
-            <version>1.2.10</version>
+            <groupId>dev.vality.geck</groupId>
+            <artifactId>filter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>dev.vality.geck</groupId>
+            <artifactId>common</artifactId>
         </dependency>
 
         <!--spring-->
@@ -125,6 +114,14 @@
 
         <!--third party-->
         <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
             <version>4.0.1</version>
@@ -132,7 +129,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.4</version>
+            <version>1.18.22</version>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
@@ -159,7 +156,7 @@
         <dependency>
             <groupId>com.rbkmoney</groupId>
             <artifactId>easyway</artifactId>
-            <version>0.2.0</version>
+            <version>0.8.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -216,7 +213,7 @@
                 </dependencies>
                 <configuration>
                     <resourceBundles>
-                        <resourceBundle>com.rbkmoney:shared-resources:${shared.resources.version}</resourceBundle>
+                        <resourceBundle>dev.vality:shared-resources:${shared-resources.version}</resourceBundle>
                     </resourceBundles>
                     <attachToMain>false</attachToMain>
                     <attachToTest>false</attachToTest>
